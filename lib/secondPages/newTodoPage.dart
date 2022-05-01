@@ -1,14 +1,21 @@
 // ignore_for_file: file_names
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:my_todo_refresh/backend/newTodoProvider.dart';
 import 'package:my_todo_refresh/backend/pageProvider.dart';
 import 'package:my_todo_refresh/custom_theme.dart';
 import 'package:my_todo_refresh/my_todo_icons.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class NewTodoPage extends StatelessWidget {
-  const NewTodoPage({Key? key}) : super(key: key);
-
+  NewTodoPage({Key? key}) : super(key: key);
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _hoursController = TextEditingController();
+  final TextEditingController _minuteController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,7 +40,7 @@ class NewTodoPage extends StatelessWidget {
           const SizedBox(
             height: 12.5,
           ),
-          _buildInputText(TextEditingController(), true, 1, null, null, null),
+          _buildInputText(_nameController, 'name', 1, null, 40),
           const SizedBox(
             height: 20.5,
           ),
@@ -51,7 +58,7 @@ class NewTodoPage extends StatelessWidget {
           const SizedBox(
             height: 16,
           ),
-          _buildInputText(TextEditingController(), false, 5, null, null, null),
+          _buildInputText(_descriptionController, 'description', 5, null, 120),
           const SizedBox(
             height: 23,
           ),
@@ -70,11 +77,16 @@ class NewTodoPage extends StatelessWidget {
             height: 12,
           ),
           Row(mainAxisAlignment: MainAxisAlignment.start, children: [
-            _buildCircle(const Color(0xFF03E579), const Color(0x00000000), 0),
-            _buildCircle(const Color(0xFF03CAE5), const Color(0x00000000), 1),
-            _buildCircle(const Color(0xFFE5A603), const Color(0x00000000), 2),
-            _buildCircle(const Color(0xFFE103E5), const Color(0x00000000), 3),
-            _buildCircle(const Color(0xFFE5031E), const Color(0x00000000), 4),
+            _buildCircle(const Color.fromRGBO(3, 229, 121, 0.7),
+                const Color.fromRGBO(3, 229, 121, 1), 0, context),
+            _buildCircle(const Color.fromRGBO(3, 202, 229, 0.7),
+                const Color.fromRGBO(3, 202, 229, 1), 1, context),
+            _buildCircle(const Color.fromRGBO(229, 166, 3, 0.7),
+                const Color.fromRGBO(229, 166, 3, 1), 2, context),
+            _buildCircle(const Color.fromRGBO(225, 3, 229, 0.7),
+                const Color.fromRGBO(225, 3, 229, 1), 3, context),
+            _buildCircle(const Color.fromRGBO(229, 3, 30, 0.7),
+                const Color.fromRGBO(229, 3, 30, 1), 4, context),
           ]),
           const SizedBox(
             height: 19,
@@ -111,7 +123,7 @@ class NewTodoPage extends StatelessWidget {
                 const SizedBox(
                   width: 15,
                 ),
-                _buildInputText(TextEditingController(), true, 1, 66, 33, null),
+                _buildInputText(_hoursController, 'duration', 1, 66, 33),
                 const SizedBox(
                   width: 20,
                 ),
@@ -126,7 +138,7 @@ class NewTodoPage extends StatelessWidget {
                 const SizedBox(
                   width: 15,
                 ),
-                _buildInputText(TextEditingController(), true, 1, 66, 33, null),
+                _buildInputText(_minuteController, 'duration', 1, 66, 33),
               ]),
           const SizedBox(
             height: 25,
@@ -145,8 +157,104 @@ class NewTodoPage extends StatelessWidget {
           const SizedBox(
             height: 19,
           ),
-          _buildInputText(TextEditingController(), true, 1, null, null,
-              const Icon(MyTodo.calendar)),
+          Container(
+            padding: EdgeInsets.zero,
+            height: 37,
+            width: 335,
+            decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(15),
+                border: Border.all(width: 1, style: BorderStyle.solid),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color.fromRGBO(0, 0, 0, 0.25),
+                    spreadRadius: 0,
+                    blurRadius: 4,
+                    offset: Offset(0, 2),
+                  )
+                ]),
+            child: TextButton(
+                style: ButtonStyle(
+                    padding: MaterialStateProperty.all(
+                        const EdgeInsets.symmetric(horizontal: 7))),
+                onPressed: () async {
+                  final DateTime? datePicked = await showDatePicker(
+                      builder: (context, child) {
+                        return Theme(
+                          data: Theme.of(context).copyWith(
+                            colorScheme: ColorScheme.light(
+                              primary: CustomTheme().indigo,
+                              onPrimary: Colors.white,
+                              onSurface: CustomTheme().blackIcon,
+                            ),
+                            textButtonTheme: TextButtonThemeData(
+                              style: TextButton.styleFrom(
+                                textStyle:
+                                    const TextStyle(fontFamily: 'Ubuntu'),
+                                primary: const Color(0xFF0d0d0d),
+                              ),
+                            ),
+                          ),
+                          child: child!,
+                        );
+                      },
+                      helpText: ('Выберите дату'),
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate: DateTime.now(),
+                      lastDate: DateTime(2101));
+
+                  if (datePicked != null) {
+                    final TimeOfDay? timePicked = await showTimePicker(
+                        builder: (context, child) {
+                          return Theme(
+                            data: Theme.of(context).copyWith(
+                              colorScheme: ColorScheme.light(
+                                primary: CustomTheme().indigo,
+                                onPrimary: Colors.white,
+                                onSurface: CustomTheme().blackIcon,
+                              ),
+                              textButtonTheme: TextButtonThemeData(
+                                style: TextButton.styleFrom(
+                                  textStyle:
+                                      const TextStyle(fontFamily: 'Ubuntu'),
+                                  primary: const Color(0xFF0d0d0d),
+                                ),
+                              ),
+                            ),
+                            child: child!,
+                          );
+                        },
+                        context: context,
+                        initialTime: TimeOfDay(
+                            hour: TimeOfDay.now().hour,
+                            minute: TimeOfDay.now().minute));
+                    if (timePicked != null) {
+                      context.read<DeadlineProvider>().changeDeadline(
+                          datePicked.millisecondsSinceEpoch +
+                              timePicked.hour * 3600000 +
+                              timePicked.minute * 60000 +
+                              timePicked.period.index * 12 * 3600);
+                    }
+                  }
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      DateFormat('dd.MM.yyyy kk:mm').format(
+                          DateTime.fromMillisecondsSinceEpoch(
+                              context.watch<DeadlineProvider>().getDeadline)),
+                      style: const TextStyle(color: Colors.black, fontSize: 16),
+                    ),
+                    const Icon(
+                      MyTodo.calendar,
+                      color: Color(0xFF0d0d0d),
+                    )
+                  ],
+                )),
+          ),
           const SizedBox(
             height: 20,
           ),
@@ -172,7 +280,33 @@ class NewTodoPage extends StatelessWidget {
                 IconButton(
                     alignment: Alignment.bottomRight,
                     padding: const EdgeInsets.only(bottom: 3),
-                    onPressed: () => context.read<PageProvider>().changePage(3),
+                    onPressed: () {
+                      if (_nameController.text.isEmpty ||
+                          _nameController.text == "") {
+                        Fluttertoast.showToast(
+                            msg: "Введите название",
+                            toastLength: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.BOTTOM,
+                            timeInSecForIosWeb: 1,
+                            backgroundColor: Colors.red,
+                            textColor: Colors.white,
+                            fontSize: 16.0);
+                      } else if ((_hoursController.text.isEmpty ||
+                              _hoursController.text == "") &&
+                          (_minuteController.text.isEmpty ||
+                              _minuteController.text == "")) {
+                        Fluttertoast.showToast(
+                            msg: "Введите время выполнения",
+                            toastLength: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.BOTTOM,
+                            timeInSecForIosWeb: 1,
+                            backgroundColor: Colors.red,
+                            textColor: Colors.white,
+                            fontSize: 16.0);
+                      } else {
+                        context.read<PageProvider>().changePage(3);
+                      }
+                    },
                     icon: const Icon(
                       MyTodo.add_rounded,
                       color: Colors.white,
@@ -255,17 +389,21 @@ class NewTodoPage extends StatelessWidget {
     );
   }
 
-  Widget _buildCircle(Color color, Color colorBorder, int importance) {
+  Widget _buildCircle(
+      Color color, Color colorBorder, int importance, BuildContext context) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 9),
-      // child: IconButton(
-      //   onPressed: () {},
-      //   padding: EdgeInsets.zero,
-      //   icon: const Icon(
-      //     MyTodo.add_rounded,
-      //     size: 18,
-      //   ),
-      // ),
+      child: TextButton(
+        onPressed: () =>
+            context.read<ImportanceProvider>().changeImportance(importance),
+        style: ButtonStyle(padding: MaterialStateProperty.all(EdgeInsets.zero)),
+        child: Icon(Icons.check,
+            size: 18,
+            color:
+                context.watch<ImportanceProvider>().getImportance == importance
+                    ? Colors.white
+                    : Colors.transparent),
+      ),
       height: 33,
       width: 33,
       decoration: BoxDecoration(
@@ -276,8 +414,8 @@ class NewTodoPage extends StatelessWidget {
     );
   }
 
-  Widget _buildInputText(TextEditingController controller, bool isName,
-      int minLines, double? width, double? height, Icon? suffixIcon) {
+  Widget _buildInputText(TextEditingController controller, String type,
+      int minLines, double? width, double? height) {
     return Container(
       width: width,
       height: height,
@@ -290,22 +428,24 @@ class NewTodoPage extends StatelessWidget {
         )
       ], borderRadius: BorderRadius.all(Radius.circular(15))),
       child: TextFormField(
+        inputFormatters: type == 'duration'
+            ? [
+                LengthLimitingTextInputFormatter(2),
+                FilteringTextInputFormatter.digitsOnly
+              ]
+            : null,
+        textAlign: type == 'duration' ? TextAlign.center : TextAlign.start,
         scrollPadding: EdgeInsets.zero,
         toolbarOptions: const ToolbarOptions(
             copy: true, paste: true, cut: true, selectAll: true),
         minLines: minLines,
         maxLines: minLines,
-        validator: (value) {
-          if (isName && value != null && value.isEmpty) {
-            return "введите название";
-          }
-          return null;
-        },
         textAlignVertical: TextAlignVertical.center,
+        keyboardType:
+            type == 'duration' ? TextInputType.number : TextInputType.text,
         controller: controller,
         style: const TextStyle(fontSize: 18),
         decoration: InputDecoration(
-            suffixIcon: suffixIcon,
             fillColor: Colors.white,
             filled: true,
             contentPadding:

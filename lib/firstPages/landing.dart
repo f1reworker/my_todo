@@ -66,7 +66,9 @@ class _LandingPageState extends State<LandingPage> {
     final isValid = _formKey.currentState!.validate();
     if (isValid) {
       int result = await addUser(
-          md5.convert(utf8.encode(_mailController.text)).toString(),
+          md5
+              .convert(utf8.encode(_mailController.text.replaceAll(' ', '')))
+              .toString(),
           md5.convert(utf8.encode(_textController.text)).toString());
       if (result == 0) {
         Fluttertoast.showToast(

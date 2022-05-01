@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_todo_refresh/backend/auth.dart';
+import 'package:my_todo_refresh/backend/newTodoProvider.dart';
 import 'package:my_todo_refresh/backend/pageProvider.dart';
 import 'package:my_todo_refresh/custom_theme.dart';
 import 'package:my_todo_refresh/firstPages/landing.dart';
@@ -12,6 +13,9 @@ void main() {
   runApp(MultiProvider(providers: [
     ChangeNotifierProvider<AuthProvider>(create: (_) => AuthProvider()),
     ChangeNotifierProvider<PageProvider>(create: (_) => PageProvider()),
+    ChangeNotifierProvider<DeadlineProvider>(create: (_) => DeadlineProvider()),
+    ChangeNotifierProvider<ImportanceProvider>(
+        create: (_) => ImportanceProvider()),
   ], child: const MyApp()));
 }
 
@@ -30,7 +34,7 @@ class MyApp extends StatelessWidget {
                   index: page - 2,
                 )
               : page == 1
-                  ? const NewTodoPage()
+                  ? NewTodoPage()
                   : const EditNotePage()
           : const LandingPage(),
     );
