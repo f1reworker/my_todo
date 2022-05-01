@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:my_todo_refresh/backend/addTodo.dart';
 import 'package:my_todo_refresh/backend/newTodoProvider.dart';
 import 'package:my_todo_refresh/backend/pageProvider.dart';
 import 'package:my_todo_refresh/custom_theme.dart';
@@ -280,7 +281,7 @@ class NewTodoPage extends StatelessWidget {
                 IconButton(
                     alignment: Alignment.bottomRight,
                     padding: const EdgeInsets.only(bottom: 3),
-                    onPressed: () {
+                    onPressed: () async {
                       if (_nameController.text.isEmpty ||
                           _nameController.text == "") {
                         Fluttertoast.showToast(
@@ -304,7 +305,25 @@ class NewTodoPage extends StatelessWidget {
                             textColor: Colors.white,
                             fontSize: 16.0);
                       } else {
-                        context.read<PageProvider>().changePage(3);
+                        var result = await addTodo(
+                            _nameController.text,
+                            _descriptionController.text,
+                            ImportanceProvider().getImportance,
+                            21,
+                            21,
+                            int.parse(_hoursController.text) * 3600 +
+                                int.parse(_minuteController.text) * 60,
+                            (DeadlineProvider().getDeadline / 1000).ceil());
+                        result == -1
+                            ? Fluttertoast.showToast(
+                                msg: "Что-то пошло не так, попробуйте позже",
+                                toastLength: Toast.LENGTH_SHORT,
+                                gravity: ToastGravity.BOTTOM,
+                                timeInSecForIosWeb: 1,
+                                backgroundColor: Colors.red,
+                                textColor: Colors.white,
+                                fontSize: 16.0)
+                            : context.read<PageProvider>().changePage(3);
                       }
                     },
                     icon: const Icon(
