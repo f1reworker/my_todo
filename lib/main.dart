@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_todo_refresh/backend/auth.dart';
+import 'package:my_todo_refresh/backend/getTodos.dart';
 import 'package:my_todo_refresh/backend/newTodoProvider.dart';
 import 'package:my_todo_refresh/backend/pageProvider.dart';
 import 'package:my_todo_refresh/custom_theme.dart';
@@ -14,6 +15,7 @@ void main() {
     ChangeNotifierProvider<AuthProvider>(create: (_) => AuthProvider()),
     ChangeNotifierProvider<PageProvider>(create: (_) => PageProvider()),
     ChangeNotifierProvider<DeadlineProvider>(create: (_) => DeadlineProvider()),
+    ChangeNotifierProvider<TodosProvider>(create: (_) => TodosProvider()),
     ChangeNotifierProvider<ImportanceProvider>(
         create: (_) => ImportanceProvider()),
   ], child: const MyApp()));

@@ -305,14 +305,20 @@ class NewTodoPage extends StatelessWidget {
                             textColor: Colors.white,
                             fontSize: 16.0);
                       } else {
+                        int _time = 0;
+                        if (_minuteController.text.isNotEmpty) {
+                          _time += int.parse(_minuteController.text) * 60;
+                        }
+                        if (_hoursController.text.isNotEmpty) {
+                          _time += int.parse(_hoursController.text) * 3600;
+                        }
                         var result = await addTodo(
                             _nameController.text,
                             _descriptionController.text,
                             ImportanceProvider().getImportance,
                             21,
                             21,
-                            int.parse(_hoursController.text) * 3600 +
-                                int.parse(_minuteController.text) * 60,
+                            _time,
                             (DeadlineProvider().getDeadline / 1000).ceil());
                         result == -1
                             ? Fluttertoast.showToast(

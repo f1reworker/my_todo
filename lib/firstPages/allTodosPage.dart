@@ -8,53 +8,126 @@ import 'package:my_todo_refresh/custom_theme.dart';
 import 'package:my_todo_refresh/my_todo_icons.dart';
 import 'package:provider/provider.dart';
 
-class AllTodosPage extends StatefulWidget {
+class AllTodosPage extends StatelessWidget {
   const AllTodosPage({Key? key}) : super(key: key);
-
-  @override
-  State<AllTodosPage> createState() => _AllTodosPageState();
-}
-
-class _AllTodosPageState extends State<AllTodosPage> {
-  late Future<List> _todos;
-
-  @override
-  void initState() {
-    _todos = getTodos(21);
-    super.initState();
-  }
-
+  static const idUser = 21;
   @override
   Widget build(BuildContext context) {
+    context.read<TodosProvider>().updateTodo(idUser, null, null);
+    List _todos = context.watch<TodosProvider>().getTodos;
     return Stack(
       fit: StackFit.loose,
       children: [
-        FutureBuilder<List>(
-          future: _todos,
-          builder: (BuildContext context, AsyncSnapshot<List> snapshot) {
-            if (snapshot.hasData) {
-              if (snapshot.data?.first == -1) {
-                return const Text('Что-то пошло не так, попробуйте позже');
-              } else if (snapshot.data?.first == 0) {
-                return const Text('Нет задач');
-              } else {
-                return ListView.separated(
-                    itemBuilder: (context, index) => index == 0
-                        ? const SizedBox(
-                            height: 5,
-                          )
-                        : _buildTask(snapshot.data![index - 1]),
-                    separatorBuilder: (context, index) => const Divider(
-                          height: 24,
-                          color: Colors.transparent,
+        // FutureBuilder<List>(
+        //   future: _todos,
+        //   builder: (BuildContext context, AsyncSnapshot<List> snapshot) {
+        //     if (snapshot.hasData) {
+        //       if (snapshot.data?.first == -1) {
+        //         return const Text('Что-то пошло не так, попробуйте позже');
+        //       } else if (snapshot.data?.first == 0) {
+        //         return const Text('Нет задач');
+        //       } else {
+        //         return
+        // _todos == [] || _todos.first == -1 || _todos.first == 0
+        //     ? const Text('error')
+        //     :
+        ListView.separated(
+            itemBuilder: (context, index) => index == 0
+                ? const SizedBox(
+                    height: 5,
+                  )
+                : Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: TextButton(
+                      style: ButtonStyle(
+                          padding: MaterialStateProperty.all(EdgeInsets.zero)),
+                      onPressed: () {},
+                      child: Container(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            TextButton(
+                                onPressed: () {
+                                  context.read<TodosProvider>().updateTodo(
+                                      idUser,
+                                      _todos[index - 1]['id'],
+                                      (_todos[index - 1]['complete'] - 1)
+                                          .abs());
+                                },
+                                style: ButtonStyle(
+                                    padding: MaterialStateProperty.all(
+                                        EdgeInsets.zero)),
+                                child: Container(
+                                  height: 33,
+                                  width: 33,
+                                  decoration: BoxDecoration(
+                                      color: _todos[index - 1]['complete'] == 1
+                                          ? _checkBorderColor(_todos[index - 1]
+                                                  ['importance'])
+                                              .withOpacity(0.7)
+                                          : Colors.transparent,
+                                      borderRadius: BorderRadius.circular(16.5),
+                                      border: Border.all(
+                                          color: _checkBorderColor(
+                                              _todos[index - 1]['importance']),
+                                          width: 4)),
+                                )),
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(
+                                  height: 5,
+                                ),
+                                Text(
+                                  _todos[index - 1]['name'],
+                                  style: const TextStyle(
+                                      color: Color(0xFF0D0D0D),
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.normal),
+                                ),
+                                Text(
+                                  _todos[index - 1]['description'],
+                                  style: const TextStyle(
+                                      color: Color(0xFF0D0D0D),
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w300),
+                                )
+                              ],
+                            )
+                          ],
                         ),
-                    itemCount: snapshot.data!.length + 1);
-              }
-            } else {
-              return const Text('Загрузка данных');
-            }
-          },
-        ),
+                        height: 60,
+                        width: MediaQuery.of(context).size.width,
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            boxShadow: [
+                              _todos[index - 1]["complete"] == 0
+                                  ? BoxShadow(
+                                      color: CustomTheme().indigo,
+                                      blurRadius: 10)
+                                  : const BoxShadow(color: Colors.transparent)
+                            ],
+                            borderRadius: BorderRadius.circular(20),
+                            border: _todos[index - 1]["complete"] == 0
+                                ? Border.all(
+                                    color: CustomTheme().indigo, width: 2)
+                                : Border.all(color: const Color(0xFFBDBDBD))),
+                      ),
+                    ),
+                  ),
+            separatorBuilder: (context, index) => const Divider(
+                  height: 24,
+                  color: Colors.transparent,
+                ),
+            itemCount: _todos.length + 1),
+        //       }
+        //     } else {
+        //       return const Text('Загрузка данных');
+        //     }
+        //   },
+        // ),
         Align(
           widthFactor: MediaQuery.of(context).size.width,
           alignment: Alignment.bottomRight,
@@ -84,69 +157,6 @@ class _AllTodosPageState extends State<AllTodosPage> {
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildTask(_task) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Container(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            TextButton(
-                onPressed: () => {},
-                style: ButtonStyle(
-                    padding: MaterialStateProperty.all(EdgeInsets.zero)),
-                child: Container(
-                  height: 33,
-                  width: 33,
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16.5),
-                      border: Border.all(
-                          color: _checkBorderColor(_task['importance']),
-                          width: 4)),
-                )),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(
-                  height: 5,
-                ),
-                Text(
-                  _task['name'],
-                  style: const TextStyle(
-                      color: Color(0xFF0D0D0D),
-                      fontSize: 22,
-                      fontWeight: FontWeight.normal),
-                ),
-                Text(
-                  _task['description'],
-                  style: const TextStyle(
-                      color: Color(0xFF0D0D0D),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w300),
-                )
-              ],
-            )
-          ],
-        ),
-        height: 60,
-        width: MediaQuery.of(context).size.width,
-        decoration: BoxDecoration(
-            color: Colors.white,
-            boxShadow: [
-              _task["complete"] == 0
-                  ? BoxShadow(color: CustomTheme().indigo, blurRadius: 10)
-                  : const BoxShadow(color: Colors.transparent)
-            ],
-            borderRadius: BorderRadius.circular(20),
-            border: _task["complete"] == 0
-                ? Border.all(color: CustomTheme().indigo, width: 2)
-                : Border.all(color: const Color(0xFFBDBDBD))),
-      ),
     );
   }
 

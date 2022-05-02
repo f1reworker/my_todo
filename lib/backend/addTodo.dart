@@ -3,6 +3,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:my_todo_refresh/backend/getTodos.dart';
 import 'package:my_todo_refresh/config.dart';
 import 'package:mysql1/mysql1.dart';
 
@@ -28,7 +29,7 @@ Future addTodo(String name, String description, int importance, int fromUser,
           0
         ]);
 
-    if (result.insertId != null) return result.insertId;
+    if (result.insertId != null) TodosProvider().updateTodo(21, null, null);
     await conn.close();
   } catch (error) {
     if (kDebugMode) {

@@ -24,11 +24,11 @@ class _MyHomePageState extends State<MyHomePage> {
     selectedIndex = widget.index;
   }
 
-  static const List<Widget> _widgetOptions = <Widget>[
-    HomePage(),
-    AllTodosPage(),
-    NotesPage(),
-    ProfilePage(),
+  static final List<Widget> _widgetOptions = <Widget>[
+    const HomePage(),
+    const AllTodosPage(),
+    const NotesPage(),
+    const ProfilePage(),
   ];
 
   // ignore: prefer_final_fields
