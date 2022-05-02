@@ -16,8 +16,17 @@ Future addTodo(String name, String description, int importance, int fromUser,
         db: dbName,
         password: passwordUser));
     var result = await conn.query(
-        'insert into usertodos (fromUser, toUser, name, description, importance, duration, deadline) values (?, ?, ?, ?, ?, ?, ?)',
-        [fromUser, toUser, name, description, importance, duration, deadline]);
+        'insert into usertodos (fromUser, toUser, name, description, importance, duration, deadline, complete) values (?, ?, ?, ?, ?, ?, ?, ?)',
+        [
+          fromUser,
+          toUser,
+          name,
+          description,
+          importance,
+          duration,
+          deadline,
+          0
+        ]);
 
     if (result.insertId != null) return result.insertId;
     await conn.close();

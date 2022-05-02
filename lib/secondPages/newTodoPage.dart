@@ -186,7 +186,7 @@ class NewTodoPage extends StatelessWidget {
                             colorScheme: ColorScheme.light(
                               primary: CustomTheme().indigo,
                               onPrimary: Colors.white,
-                              onSurface: CustomTheme().blackIcon,
+                              onSurface: const Color(0xFF0D0D0D),
                             ),
                             textButtonTheme: TextButtonThemeData(
                               style: TextButton.styleFrom(
