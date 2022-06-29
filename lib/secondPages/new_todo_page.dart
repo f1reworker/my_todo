@@ -2,10 +2,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:my_todo_refresh/backend/addTodo.dart';
-import 'package:my_todo_refresh/backend/newTodoProvider.dart';
-import 'package:my_todo_refresh/backend/pageProvider.dart';
+import 'package:my_todo_refresh/backend/add_todo.dart';
+import 'package:my_todo_refresh/backend/new_todo_provider.dart';
+import 'package:my_todo_refresh/backend/page_provider.dart';
 import 'package:my_todo_refresh/custom_theme.dart';
+import 'package:my_todo_refresh/main.dart';
 import 'package:my_todo_refresh/my_todo_icons.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
@@ -33,7 +34,7 @@ class NewTodoPage extends StatelessWidget {
               "Введите название",
               style: TextStyle(
                 color: Color(0xFF0D0D0D),
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w700,
                 fontSize: 22,
               ),
             ),
@@ -51,7 +52,7 @@ class NewTodoPage extends StatelessWidget {
               "Добавьте описание",
               style: TextStyle(
                 color: Color(0xFF0D0D0D),
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.w600,
                 fontSize: 20,
               ),
             ),
@@ -69,7 +70,7 @@ class NewTodoPage extends StatelessWidget {
               "Важность задачи",
               style: TextStyle(
                 color: Color(0xFF0D0D0D),
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.w600,
                 fontSize: 20,
               ),
             ),
@@ -98,7 +99,7 @@ class NewTodoPage extends StatelessWidget {
               "Время выполнения",
               style: TextStyle(
                 color: Color(0xFF0D0D0D),
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.w600,
                 fontSize: 20,
               ),
             ),
@@ -150,7 +151,7 @@ class NewTodoPage extends StatelessWidget {
               "Дедлайн",
               style: TextStyle(
                 color: Color(0xFF0D0D0D),
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.w600,
                 fontSize: 20,
               ),
             ),
@@ -264,7 +265,7 @@ class NewTodoPage extends StatelessWidget {
       backgroundColor: CustomTheme.lightTheme.colorScheme.background,
       appBar: PreferredSize(
           child: Container(
-            height: 146,
+            height: 116,
             padding:
                 const EdgeInsets.only(left: 24, top: 42, bottom: 27, right: 24),
             child: Row(
@@ -274,7 +275,7 @@ class NewTodoPage extends StatelessWidget {
                 const Text(
                   "Новая задача",
                   style: TextStyle(
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w700,
                       fontSize: 32,
                       color: Colors.white),
                 ),
@@ -312,12 +313,12 @@ class NewTodoPage extends StatelessWidget {
                         if (_hoursController.text.isNotEmpty) {
                           _time += int.parse(_hoursController.text) * 3600;
                         }
-                        var result = await addTodo(
+                        final result = await addTodo(
                             _nameController.text,
                             _descriptionController.text,
                             ImportanceProvider().getImportance,
-                            21,
-                            21,
+                            myId,
+                            myId,
                             _time,
                             (DeadlineProvider().getDeadline / 1000).ceil());
                         result == -1
@@ -329,7 +330,16 @@ class NewTodoPage extends StatelessWidget {
                                 backgroundColor: Colors.red,
                                 textColor: Colors.white,
                                 fontSize: 16.0)
-                            : context.read<PageProvider>().changePage(3);
+                            : Navigator.pop(
+                                context,
+                                PageRouteBuilder(
+                                  pageBuilder:
+                                      (context, animation1, animation2) =>
+                                          const MyApp(),
+                                  transitionDuration: Duration.zero,
+                                  reverseTransitionDuration: Duration.zero,
+                                ),
+                              );
                       }
                     },
                     icon: const Icon(
@@ -353,9 +363,9 @@ class NewTodoPage extends StatelessWidget {
                     bottomLeft: Radius.circular(30),
                     bottomRight: Radius.circular(30))),
           ),
-          preferredSize: const Size.fromHeight(146)),
+          preferredSize: const Size.fromHeight(116)),
       bottomNavigationBar: Container(
-          height: 80,
+          height: 60,
           decoration: const BoxDecoration(
             boxShadow: [
               BoxShadow(
@@ -381,8 +391,18 @@ class NewTodoPage extends StatelessWidget {
               showSelectedLabels: false,
               showUnselectedLabels: false,
               type: BottomNavigationBarType.fixed,
-              onTap: (index) =>
-                  context.read<PageProvider>().changePage(index + 2),
+              onTap: (index) {
+                Navigator.pushReplacement(
+                  context,
+                  PageRouteBuilder(
+                    pageBuilder: (context, animation1, animation2) =>
+                        const MyApp(),
+                    transitionDuration: Duration.zero,
+                    reverseTransitionDuration: Duration.zero,
+                  ),
+                );
+                context.read<PageProvider>().changePage(index);
+              },
               items: const <BottomNavigationBarItem>[
                 BottomNavigationBarItem(
                     icon: Icon(
@@ -444,15 +464,18 @@ class NewTodoPage extends StatelessWidget {
     return Container(
       width: width,
       height: height,
-      decoration: const BoxDecoration(boxShadow: [
+      decoration: BoxDecoration(boxShadow: [
         BoxShadow(
-          color: Color.fromRGBO(0, 0, 0, 0.25),
+          color: const Color.fromRGBO(0, 0, 0, 0.25),
           spreadRadius: 0,
-          blurRadius: 2,
-          offset: Offset(0, 2),
+          blurRadius: 4,
+          offset:
+              type == 'description' ? const Offset(0, 0) : const Offset(0, 2),
         )
-      ], borderRadius: BorderRadius.all(Radius.circular(15))),
+      ], borderRadius: const BorderRadius.all(Radius.circular(15))),
       child: TextFormField(
+        showCursor: true,
+        cursorColor: Colors.grey,
         inputFormatters: type == 'duration'
             ? [
                 LengthLimitingTextInputFormatter(2),

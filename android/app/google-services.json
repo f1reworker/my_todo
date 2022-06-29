@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "769264141910",
+    "project_id": "my-todo-refresh",
+    "storage_bucket": "my-todo-refresh.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:769264141910:android:f197bf157422ca7241ddf7",
+        "android_client_info": {
+          "package_name": "com.mytodo.refresh"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "769264141910-q4qhhvoho9h5qhdm2f504r1dgqcp1gdi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBI_OE-Ummo0KuvMh5RoJlBJO1u8za9mvM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "769264141910-q4qhhvoho9h5qhdm2f504r1dgqcp1gdi.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

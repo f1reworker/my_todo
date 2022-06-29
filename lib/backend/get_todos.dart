@@ -77,9 +77,7 @@ List _todos = [];
 class TodosProvider with ChangeNotifier {
   List get getTodos => _todos;
   void updateTodo(int idUser, int? idTodo, int? complete) async {
-    List todos = await updateTodos(idUser, idTodo, complete);
-    _todos = todos;
-    notifyListeners();
-    await Future.delayed(const Duration(seconds: 1));
+    //   notifyListeners();
+    //await Future.delayed(const Duration(seconds: 1));
   }
 }

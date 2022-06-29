@@ -1,6 +1,3 @@
-import 'dart:convert';
-import 'package:crypto/crypto.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:my_todo_refresh/backend/auth.dart';
@@ -17,22 +14,21 @@ class LandingPage extends StatefulWidget {
 
 class _LandingPageState extends State<LandingPage> {
   final _mailController = TextEditingController();
-  final _textController = TextEditingController();
+  final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
     _mailController.dispose();
-    _textController.dispose();
+    _passwordController.dispose();
     super.dispose();
   }
 
   Future loginUser() async {
     final isValid = _formKey.currentState!.validate();
     if (isValid) {
-      dynamic result = await login(
-          md5.convert(utf8.encode(_mailController.text)).toString(),
-          md5.convert(utf8.encode(_textController.text)).toString());
+      final result = await login(
+          _mailController.text.replaceAll(' ', ''), _passwordController.text);
       if (result == 0) {
         Fluttertoast.showToast(
             msg: "Неверный email или пароль!",
@@ -54,10 +50,7 @@ class _LandingPageState extends State<LandingPage> {
             fontSize: 16.0);
         return -1;
       } else {
-        if (kDebugMode) {
-          print(result["id"]);
-        }
-        return result["id"];
+        return result;
       }
     }
   }
@@ -65,11 +58,8 @@ class _LandingPageState extends State<LandingPage> {
   Future auth() async {
     final isValid = _formKey.currentState!.validate();
     if (isValid) {
-      int result = await addUser(
-          md5
-              .convert(utf8.encode(_mailController.text.replaceAll(' ', '')))
-              .toString(),
-          md5.convert(utf8.encode(_textController.text)).toString());
+      final result = await register(
+          _mailController.text.replaceAll(' ', ''), _passwordController.text);
       if (result == 0) {
         Fluttertoast.showToast(
             msg: "Пользователь с таким email уже есть!",
@@ -79,7 +69,16 @@ class _LandingPageState extends State<LandingPage> {
             backgroundColor: Colors.red,
             textColor: Colors.white,
             fontSize: 16.0);
-      } else if (result == -1) {
+      } else if (result == 1) {
+        Fluttertoast.showToast(
+            msg: "Пароль слишком длинный!",
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0);
+      } else if (result == -1 || result == null) {
         Fluttertoast.showToast(
             msg: "Что-то пошло не так, попробуйте позже",
             toastLength: Toast.LENGTH_LONG,
@@ -139,7 +138,7 @@ class _LandingPageState extends State<LandingPage> {
                   ),
                   _buildInputText(
                     'пароль',
-                    _textController,
+                    _passwordController,
                   ),
                   const SizedBox(
                     height: 17,
@@ -153,7 +152,7 @@ class _LandingPageState extends State<LandingPage> {
                       child: TextButton(
                         onPressed: () async {
                           await loginUser().then((value) {
-                            if (value > 0) {
+                            if (value != null) {
                               context.read<AuthProvider>().isLogIn(true);
                             }
                           });
@@ -208,7 +207,9 @@ class _LandingPageState extends State<LandingPage> {
         if (value != null && value.isEmpty) {
           return "поле  не заполнено";
         } else if (hintText == "e-mail") {
-          if (!EmailValidator.validate(value!)) return "почта некорректна";
+          if (!EmailValidator.validate(value!.replaceAll(' ', ''))) {
+            return "почта некорректна";
+          }
         } else if (hintText == "пароль") {
           if (value!.length < 6) return "пароль меньше 6 символов";
         }

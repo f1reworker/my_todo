@@ -1,86 +1,34 @@
 import 'dart:async';
-
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
-import 'package:my_todo_refresh/config.dart';
-import 'package:mysql1/mysql1.dart';
 
-Future addUser(String email, String password) async {
-  // Open a connection (testdb should already exist)
+Future register(String login, String password) async {
   try {
-    final conn = await MySqlConnection.connect(ConnectionSettings(
-        host: host,
-        port: port,
-        user: user,
-        db: dbName,
-        password: passwordUser));
-
-    // Create a table
-    // await conn.query(
-    //     'CREATE TABLE users (id int NOT NULL AUTO_INCREMENT PRIMARY KEY, email varchar(255),password varchar(255), dateAuth int)');
-    // await conn.query(
-    //     'CREATE TABLE userTodos (id int NOT NULL AUTO_INCREMENT PRIMARY KEY, fromUser int NOT NULL, toUser int NOT NULL, name varchar(255) NOT NULL, description varchar(255), importance int NOT NULL, duration int, deadline int)');
-    var results =
-        await conn.query('select id from users where email = ?', [email]);
-    if (results.isNotEmpty) return 0;
-    var result = await conn.query(
-        'insert into users (email, password, dateAuth) values (?, ?, ?)', [
-      email,
-      password,
-      (DateTime.now().toUtc().millisecondsSinceEpoch / 1000).ceil()
-    ]);
-
-    if (result.insertId != null) return result.insertId;
-
-    // Query the database using a parameterized query
-    // var results = await conn.query(
-    //     'select name, email, age from users where id = ?', [result.insertId]);
-    // for (var row in results) {
-    //   print('Name: ${row[0]}, email: ${row[1]} age: ${row[2]}');
-    // }
-
-    // // Update some data
-    // await conn.query('update users set age=? where name=?', [26, 'Bob']);
-
-    // // Query again database using a parameterized query
-    // var results2 = await conn.query(
-    //     'select name, email, age from users where id = ?', [result.insertId]);
-    // for (var row in results2) {
-    //   print('Name: ${row[0]}, email: ${row[1]} age: ${row[2]}');
-    // }
-
-    // Finally, close the connection
-    await conn.close();
-  } catch (error) {
-    if (kDebugMode) {
-      print("error $error");
+    final result = await FirebaseAuth.instance
+        .createUserWithEmailAndPassword(email: login, password: password);
+    return result.user!.uid;
+  } on FirebaseAuthException catch (e) {
+    if (e.code == 'weak-password') {
+      return 1;
+    } else if (e.code == 'email-already-in-use') {
+      return 0;
     }
+  } catch (e) {
     return -1;
   }
 }
 
-Future login(String email, String password) async {
+Future login(String login, String password) async {
   try {
-    final conn = await MySqlConnection.connect(ConnectionSettings(
-        host: host,
-        port: port,
-        user: user,
-        db: dbName,
-        password: passwordUser));
-
-    var results = await conn.query(
-        'select id from users where email = ? && password = ? ',
-        [email, password]);
-    await conn.close();
-    if (results.isNotEmpty) {
-      return results.first;
-    } else {
+    final result = await FirebaseAuth.instance
+        .signInWithEmailAndPassword(email: login, password: password);
+    return result.user!.uid;
+  } on FirebaseAuthException catch (e) {
+    if (e.code == 'user-not-found' || e.code == 'wrong-password') {
       return 0;
+    } else {
+      return -1;
     }
-  } catch (error) {
-    if (kDebugMode) {
-      print("error $error");
-    }
-    return -1;
   }
 }
 

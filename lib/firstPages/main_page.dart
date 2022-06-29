@@ -1,10 +1,8 @@
-// ignore_for_file: file_names
-
 import 'package:flutter/material.dart';
 import 'package:my_todo_refresh/custom_theme.dart';
 import 'package:my_todo_refresh/my_todo_icons.dart';
-import 'package:my_todo_refresh/firstPages/allTodosPage.dart';
-import 'package:my_todo_refresh/firstPages/homePage.dart';
+import 'package:my_todo_refresh/firstPages/all_todos_page.dart';
+import 'package:my_todo_refresh/firstPages/home_page.dart';
 import 'package:my_todo_refresh/firstPages/notes.dart';
 import 'package:my_todo_refresh/firstPages/user.dart';
 
@@ -31,8 +29,7 @@ class _MyHomePageState extends State<MyHomePage> {
     const ProfilePage(),
   ];
 
-  // ignore: prefer_final_fields
-  static List _appbarOptions = <PreferredSizeWidget>[
+  final List _appbarOptions = <PreferredSizeWidget>[
     buildAppBar(
       "Задачи на сегодня",
       CustomTheme().indigo,
@@ -75,7 +72,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
         backgroundColor: CustomTheme.lightTheme.colorScheme.background,
         bottomNavigationBar: Container(
-            height: 80,
+            height: 60,
             decoration: const BoxDecoration(
               boxShadow: [
                 BoxShadow(
@@ -139,7 +136,7 @@ class _MyHomePageState extends State<MyHomePage> {
 PreferredSizeWidget buildAppBar(String title, Color color, Widget icon) {
   return PreferredSize(
       child: Container(
-        height: 146,
+        height: 116,
         padding:
             const EdgeInsets.only(left: 24, top: 42, bottom: 27, right: 24),
         child: Align(
@@ -173,5 +170,5 @@ PreferredSizeWidget buildAppBar(String title, Color color, Widget icon) {
                 bottomLeft: Radius.circular(30),
                 bottomRight: Radius.circular(30))),
       ),
-      preferredSize: const Size.fromHeight(146));
+      preferredSize: const Size.fromHeight(116));
 }

@@ -1,4 +1,3 @@
-// ignore_for_file: file_names
 import 'package:flutter/material.dart';
 
 class EditNotePage extends StatelessWidget {
@@ -6,6 +5,8 @@ class EditNotePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return Container(
+      child: ElevatedButton(onPressed: () {}, child: const Text('asdasdsasd')),
+    );
   }
 }

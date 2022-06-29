@@ -6,6 +6,7 @@ class CustomTheme {
   Color get orange => const Color(0xFFFD7D20);
   Color get redIcon => const Color(0xFFF21905);
   Color get blackIcon => const Color(0xFF1E2124);
+  Color get grayDivider => const Color(0xFF8F8F8F);
   static ThemeData get lightTheme {
     return ThemeData(
         fontFamily: 'Ubuntu',
