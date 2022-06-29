@@ -1,10 +1,8 @@
-// ignore_for_file: file_names
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:my_todo_refresh/backend/add_todo.dart';
 import 'package:my_todo_refresh/backend/new_todo_provider.dart';
 import 'package:my_todo_refresh/backend/page_provider.dart';
+import 'package:my_todo_refresh/backend/update_todo.dart';
 import 'package:my_todo_refresh/custom_theme.dart';
 import 'package:my_todo_refresh/main.dart';
 import 'package:my_todo_refresh/my_todo_icons.dart';
@@ -13,7 +11,8 @@ import 'package:intl/intl.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class NewTodoPage extends StatelessWidget {
-  NewTodoPage({Key? key}) : super(key: key);
+  final int id;
+  NewTodoPage(this.id, {Key? key}) : super(key: key);
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _hoursController = TextEditingController();
@@ -308,16 +307,18 @@ class NewTodoPage extends StatelessWidget {
                       } else {
                         int _time = 0;
                         if (_minuteController.text.isNotEmpty) {
-                          _time += int.parse(_minuteController.text) * 60;
+                          _time += int.parse(_minuteController.text);
                         }
                         if (_hoursController.text.isNotEmpty) {
-                          _time += int.parse(_hoursController.text) * 3600;
+                          _time += int.parse(_hoursController.text) * 60;
                         }
-                        final result = await addTodo(
+                        final result = await updateTodo(
+                            id,
+                            myId,
+                            false,
                             _nameController.text,
                             _descriptionController.text,
                             ImportanceProvider().getImportance,
-                            myId,
                             myId,
                             _time,
                             (DeadlineProvider().getDeadline / 1000).ceil());

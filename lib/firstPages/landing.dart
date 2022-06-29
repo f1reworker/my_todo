@@ -38,7 +38,7 @@ class _LandingPageState extends State<LandingPage> {
             backgroundColor: Colors.red,
             textColor: Colors.white,
             fontSize: 16.0);
-        return 0;
+        return null;
       } else if (result == -1) {
         Fluttertoast.showToast(
             msg: "Что-то пошло не так, попробуйте позже",
@@ -48,7 +48,7 @@ class _LandingPageState extends State<LandingPage> {
             backgroundColor: Colors.red,
             textColor: Colors.white,
             fontSize: 16.0);
-        return -1;
+        return null;
       } else {
         return result;
       }
@@ -72,6 +72,15 @@ class _LandingPageState extends State<LandingPage> {
       } else if (result == 1) {
         Fluttertoast.showToast(
             msg: "Пароль слишком длинный!",
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0);
+      } else if (result == 2) {
+        Fluttertoast.showToast(
+            msg: "Почта некорректна",
             toastLength: Toast.LENGTH_LONG,
             gravity: ToastGravity.BOTTOM,
             timeInSecForIosWeb: 1,
@@ -198,6 +207,7 @@ class _LandingPageState extends State<LandingPage> {
   StatefulWidget _buildInputText(
       String hintText, TextEditingController controller) {
     return TextFormField(
+      keyboardType: TextInputType.emailAddress,
       scrollPadding: EdgeInsets.zero,
       toolbarOptions: const ToolbarOptions(
           copy: true, paste: true, cut: true, selectAll: true),

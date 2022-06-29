@@ -19,6 +19,7 @@ class BuildAlert extends StatelessWidget {
   final TextEditingController _minuteController;
   final int deadline;
   final int importance;
+  final bool complete;
   const BuildAlert(
       this._nameController,
       this._descriptionController,
@@ -29,6 +30,7 @@ class BuildAlert extends StatelessWidget {
       this._minuteController,
       this.deadline,
       this.importance,
+      this.complete,
       {Key? key})
       : super(key: key);
 
@@ -60,14 +62,17 @@ class BuildAlert extends StatelessWidget {
                 IconButton(
                     padding: const EdgeInsets.only(right: 20),
                     onPressed: () {
-                      updateTodo(id, toUser,
-                          name: _nameController.text,
-                          duration:
-                              (int.tryParse(_hoursController.text) ?? 0) * 60 +
-                                  (int.tryParse(_minuteController.text) ?? 0),
-                          description: _descriptionController.text,
-                          importance: ImportanceProvider().getImportance,
-                          deadline: DeadlineProvider().getDeadline);
+                      updateTodo(
+                          id,
+                          toUser,
+                          complete,
+                          _nameController.text,
+                          _descriptionController.text,
+                          ImportanceProvider().getImportance,
+                          _descriptionController.text,
+                          (int.tryParse(_hoursController.text) ?? 0) * 60 +
+                              (int.tryParse(_minuteController.text) ?? 0),
+                          DeadlineProvider().getDeadline);
                       Navigator.pop(context);
                     },
                     icon: Icon(
@@ -282,6 +287,7 @@ showAlertDialog(
   BuildContext context,
   int id,
   String toUser,
+  bool complete,
   String name,
   String description,
   int importance,
@@ -303,7 +309,8 @@ showAlertDialog(
           TextEditingController(text: _hours.toString()),
           TextEditingController(text: _minute.toString()),
           deadline,
-          importance);
+          importance,
+          complete);
     },
   );
 }
