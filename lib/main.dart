@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:my_todo_refresh/backend/auth.dart';
-import 'package:my_todo_refresh/backend/getTodos.dart';
-import 'package:my_todo_refresh/backend/newTodoProvider.dart';
-import 'package:my_todo_refresh/backend/pageProvider.dart';
+import 'package:my_todo_refresh/backend/get_todos.dart';
+import 'package:my_todo_refresh/backend/new_todo_provider.dart';
+import 'package:my_todo_refresh/backend/page_provider.dart';
 import 'package:my_todo_refresh/custom_theme.dart';
 import 'package:my_todo_refresh/firstPages/landing.dart';
-import 'package:my_todo_refresh/firstPages/mainPage.dart';
-import 'package:my_todo_refresh/secondPages/editNotePage.dart';
-import 'package:my_todo_refresh/secondPages/newTodoPage.dart';
+import 'package:my_todo_refresh/firstPages/main_page.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_core/firebase_core.dart';
 
-void main() {
+const myId = '6EOYHqRqqfMVh64JUbAwhEnSFpd2';
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(MultiProvider(providers: [
     ChangeNotifierProvider<AuthProvider>(create: (_) => AuthProvider()),
     ChangeNotifierProvider<PageProvider>(create: (_) => PageProvider()),
@@ -28,17 +30,12 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     int page = context.watch<PageProvider>().getPage;
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: CustomTheme.lightTheme,
-      home: context.watch<AuthProvider>().isLogggedIn
-          ? page > 1
-              ? MyHomePage(
-                  index: page - 2,
-                )
-              : page == 1
-                  ? NewTodoPage()
-                  : const EditNotePage()
-          : const LandingPage(),
-    );
+        title: 'Flutter Demo',
+        theme: CustomTheme.lightTheme,
+        home: context.watch<AuthProvider>().isLogggedIn
+            ? MyHomePage(
+                index: page,
+              )
+            : const LandingPage());
   }
 }
