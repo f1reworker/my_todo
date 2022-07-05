@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:my_todo_refresh/backend/new_todo_provider.dart';
 import 'package:my_todo_refresh/backend/update_todo.dart';
+import 'package:my_todo_refresh/backend/utils.dart';
 import 'package:my_todo_refresh/custom_theme.dart';
-import 'package:my_todo_refresh/main.dart';
 import 'package:my_todo_refresh/my_todo_icons.dart';
 import 'package:my_todo_refresh/secondPages/alert_dialod.dart';
 import 'package:my_todo_refresh/secondPages/new_todo_page.dart';
@@ -17,7 +17,7 @@ class AllTodosPage extends StatelessWidget {
     return StreamBuilder(
         stream: FirebaseFirestore.instance
             .collection('todos')
-            .doc(myId)
+            .doc(Utils.userId)
             .snapshots(),
         builder:
             (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
@@ -44,7 +44,7 @@ class AllTodosPage extends StatelessWidget {
                             style: ButtonStyle(
                                 padding:
                                     MaterialStateProperty.all(EdgeInsets.zero)),
-                            onPressed: () {
+                            onPressed: () async {
                               context.read<DeadlineProvider>().changeDeadline(
                                   _todos[index - 1]['deadline']);
                               context
@@ -73,7 +73,7 @@ class AllTodosPage extends StatelessWidget {
                                       onPressed: () {
                                         updateTodo(
                                             _todos[index - 1]['id'],
-                                            myId,
+                                            Utils.userId!,
                                             !_todos[index - 1]['complete'],
                                             _todos[index - 1]['name'],
                                             _todos[index - 1]['description'],

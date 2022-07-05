@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 Future register(String login, String password) async {
@@ -10,11 +9,11 @@ Future register(String login, String password) async {
     await FirebaseFirestore.instance
         .collection('todos')
         .doc(result.user!.uid)
-        .set({'data': []});
+        .set({});
     await FirebaseFirestore.instance
         .collection('notes')
         .doc(result.user!.uid)
-        .set({'data': []});
+        .set({});
     return result.user!.uid;
   } on FirebaseAuthException catch (e) {
     if (e.code == 'weak-password') {
@@ -40,15 +39,5 @@ Future login(String login, String password) async {
     } else {
       return -1;
     }
-  }
-}
-
-bool _data1 = true;
-
-class AuthProvider with ChangeNotifier {
-  bool get isLogggedIn => _data1;
-  void isLogIn(bool isLoggedIn) {
-    _data1 = isLoggedIn;
-    notifyListeners();
   }
 }

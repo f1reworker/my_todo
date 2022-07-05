@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:my_todo_refresh/backend/utils.dart';
 import 'package:my_todo_refresh/custom_theme.dart';
-import 'package:my_todo_refresh/main.dart';
 import 'package:my_todo_refresh/my_todo_icons.dart';
 import 'package:my_todo_refresh/secondPages/edit_note_page.dart';
 
@@ -18,7 +18,7 @@ class _NotesPageState extends State<NotesPage> {
     return StreamBuilder<DocumentSnapshot>(
         stream: FirebaseFirestore.instance
             .collection('notes')
-            .doc(myId)
+            .doc(Utils.userId)
             .snapshots(),
         builder:
             (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
@@ -51,7 +51,7 @@ class _NotesPageState extends State<NotesPage> {
                               TextEditingController(
                                   text: _notes[index]['text']),
                               _notes[index]['id'],
-                              myId),
+                              Utils.userId!),
                       transitionDuration: Duration.zero,
                       reverseTransitionDuration: Duration.zero,
                     ),
@@ -131,7 +131,7 @@ class _NotesPageState extends State<NotesPage> {
                                 TextEditingController(text: 'Новая заметка'),
                                 TextEditingController(),
                                 _notes.length,
-                                myId),
+                                Utils.userId!),
                         transitionDuration: Duration.zero,
                         reverseTransitionDuration: Duration.zero,
                       ),

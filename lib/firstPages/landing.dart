@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:my_todo_refresh/backend/auth.dart';
+import 'package:my_todo_refresh/backend/page_provider.dart';
 import 'package:my_todo_refresh/custom_theme.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:my_todo_refresh/firstPages/main_page.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:my_todo_refresh/backend/utils.dart';
 
 class LandingPage extends StatefulWidget {
   const LandingPage({Key? key}) : super(key: key);
@@ -160,9 +164,24 @@ class _LandingPageState extends State<LandingPage> {
                           color: CustomTheme().indigo),
                       child: TextButton(
                         onPressed: () async {
-                          await loginUser().then((value) {
+                          await loginUser().then((value) async {
                             if (value != null) {
-                              context.read<AuthProvider>().isLogIn(true);
+                              final prefs =
+                                  await SharedPreferences.getInstance();
+                              await prefs.setString('userId', value);
+                              Utils.userId = value;
+                              Navigator.pushReplacement(
+                                  context,
+                                  PageRouteBuilder(
+                                    pageBuilder:
+                                        (context, animation1, animation2) =>
+                                            MyHomePage(
+                                      index:
+                                          context.watch<PageProvider>().getPage,
+                                    ),
+                                    transitionDuration: Duration.zero,
+                                    reverseTransitionDuration: Duration.zero,
+                                  ));
                             }
                           });
                         },
@@ -176,9 +195,22 @@ class _LandingPageState extends State<LandingPage> {
                       )),
                   TextButton(
                     onPressed: () async {
-                      await auth().then((value) {
+                      await auth().then((value) async {
                         if (value != null) {
-                          context.read<AuthProvider>().isLogIn(true);
+                          final prefs = await SharedPreferences.getInstance();
+                          await prefs.setString('userId', value);
+                          Utils.userId = value;
+                          Navigator.pushReplacement(
+                              context,
+                              PageRouteBuilder(
+                                pageBuilder:
+                                    (context, animation1, animation2) =>
+                                        MyHomePage(
+                                  index: context.watch<PageProvider>().getPage,
+                                ),
+                                transitionDuration: Duration.zero,
+                                reverseTransitionDuration: Duration.zero,
+                              ));
                         }
                       });
                     },

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:my_todo_refresh/backend/new_todo_provider.dart';
 import 'package:my_todo_refresh/backend/page_provider.dart';
 import 'package:my_todo_refresh/backend/update_todo.dart';
+import 'package:my_todo_refresh/backend/utils.dart';
 import 'package:my_todo_refresh/custom_theme.dart';
 import 'package:my_todo_refresh/main.dart';
 import 'package:my_todo_refresh/my_todo_icons.dart';
@@ -314,12 +315,12 @@ class NewTodoPage extends StatelessWidget {
                         }
                         final result = await updateTodo(
                             id,
-                            myId,
+                            Utils.userId!,
                             false,
                             _nameController.text,
                             _descriptionController.text,
                             ImportanceProvider().getImportance,
-                            myId,
+                            Utils.userId!,
                             _time,
                             (DeadlineProvider().getDeadline / 1000).ceil());
                         result == -1
