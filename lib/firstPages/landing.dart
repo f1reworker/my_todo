@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:my_todo_refresh/backend/auth.dart';
 import 'package:my_todo_refresh/backend/page_provider.dart';
+import 'package:my_todo_refresh/backend/todo_for_day.dart';
 import 'package:my_todo_refresh/custom_theme.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:my_todo_refresh/firstPages/main_page.dart';
@@ -170,6 +171,7 @@ class _LandingPageState extends State<LandingPage> {
                                   await SharedPreferences.getInstance();
                               await prefs.setString('userId', value);
                               Utils.userId = value;
+                              updateTodoForDay();
                               Navigator.pushReplacement(
                                   context,
                                   PageRouteBuilder(
@@ -200,6 +202,7 @@ class _LandingPageState extends State<LandingPage> {
                           final prefs = await SharedPreferences.getInstance();
                           await prefs.setString('userId', value);
                           Utils.userId = value;
+                          updateTodoForDay();
                           Navigator.pushReplacement(
                               context,
                               PageRouteBuilder(

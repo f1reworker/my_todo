@@ -1,6 +1,15 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:my_todo_refresh/backend/utils.dart';
 
-void updateTodoForDay() {}
+void updateTodoForDay() async {
+  final Map<String, dynamic>? _allTodos = await FirebaseFirestore.instance
+      .collection('todos')
+      .doc(Utils.userId)
+      .get()
+      .then((value) => value.data());
+  print(_allTodos);
+}
 
 Future showNotificationWithDefaultSound(flip) async {
   var androidPlatformChannelSpecifics = const AndroidNotificationDetails(

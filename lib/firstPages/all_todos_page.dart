@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:my_todo_refresh/backend/new_todo_provider.dart';
@@ -38,122 +39,9 @@ class AllTodosPage extends StatelessWidget {
                       ? const SizedBox(
                           height: 5,
                         )
-                      : Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: TextButton(
-                            style: ButtonStyle(
-                                padding:
-                                    MaterialStateProperty.all(EdgeInsets.zero)),
-                            onPressed: () async {
-                              context.read<DeadlineProvider>().changeDeadline(
-                                  _todos[index - 1]['deadline']);
-                              context
-                                  .read<ImportanceProvider>()
-                                  .changeImportance(
-                                      _todos[index - 1]['importance']);
-                              showAlertDialog(
-                                context,
-                                _todos[index - 1]['id'],
-                                _todos[index - 1]['toUser'],
-                                _todos[index - 1]['complete'],
-                                _todos[index - 1]['name'],
-                                _todos[index - 1]['description'],
-                                _todos[index - 1]['importance'],
-                                _todos[index - 1]['fromUser'],
-                                _todos[index - 1]['duration'],
-                                _todos[index - 1]['deadline'],
-                              );
-                            },
-                            child: Container(
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  TextButton(
-                                      onPressed: () {
-                                        updateTodo(
-                                            _todos[index - 1]['id'],
-                                            Utils.userId!,
-                                            !_todos[index - 1]['complete'],
-                                            _todos[index - 1]['name'],
-                                            _todos[index - 1]['description'],
-                                            _todos[index - 1]['importance'],
-                                            _todos[index - 1]['fromUser'],
-                                            _todos[index - 1]['duration'],
-                                            _todos[index - 1]['deadline']);
-                                      },
-                                      style: ButtonStyle(
-                                          padding: MaterialStateProperty.all(
-                                              EdgeInsets.zero)),
-                                      child: Container(
-                                        height: 33,
-                                        width: 33,
-                                        decoration: BoxDecoration(
-                                            color: _todos[index - 1]
-                                                        ['complete'] ==
-                                                    true
-                                                ? _checkBorderColor(
-                                                        _todos[index - 1]
-                                                            ['importance'])
-                                                    .withOpacity(0.7)
-                                                : Colors.transparent,
-                                            borderRadius:
-                                                BorderRadius.circular(16.5),
-                                            border: Border.all(
-                                                color: _checkBorderColor(
-                                                    _todos[index - 1]
-                                                        ['importance']),
-                                                width: 4)),
-                                      )),
-                                  Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      const SizedBox(
-                                        height: 5,
-                                      ),
-                                      //TODO: TextOverflow
-                                      Text(
-                                        _todos[index - 1]['name'],
-                                        style: const TextStyle(
-                                            overflow: TextOverflow.fade,
-                                            color: Color(0xFF0D0D0D),
-                                            fontSize: 22,
-                                            fontWeight: FontWeight.normal),
-                                      ),
-                                      Text(
-                                        _todos[index - 1]['description'],
-                                        style: const TextStyle(
-                                            overflow: TextOverflow.fade,
-                                            color: Color(0xFF0D0D0D),
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w300),
-                                      )
-                                    ],
-                                  )
-                                ],
-                              ),
-                              height: 60,
-                              width: MediaQuery.of(context).size.width - 40,
-                              decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  boxShadow: [
-                                    _todos[index - 1]["complete"] == false
-                                        ? BoxShadow(
-                                            color: CustomTheme().indigo,
-                                            blurRadius: 10)
-                                        : const BoxShadow(
-                                            color: Colors.transparent)
-                                  ],
-                                  borderRadius: BorderRadius.circular(20),
-                                  border: _todos[index - 1]["complete"] == false
-                                      ? Border.all(
-                                          color: CustomTheme().indigo, width: 2)
-                                      : Border.all(
-                                          color: const Color(0xFFBDBDBD))),
-                            ),
-                          ),
+                      : BuildButtonTodo(
+                          todos: _todos,
+                          index: index,
                         ),
                   separatorBuilder: (context, index) => const Divider(
                         height: 24,
@@ -207,6 +95,173 @@ class AllTodosPage extends StatelessWidget {
             );
           }
         });
+  }
+}
+
+class BuildButtonTodo extends StatefulWidget {
+  final List<Map<String, dynamic>> todos;
+  final int index;
+  const BuildButtonTodo({required this.todos, required this.index, Key? key})
+      : super(key: key);
+
+  @override
+  State<BuildButtonTodo> createState() => _BuildButtonTodoState();
+}
+
+class _BuildButtonTodoState extends State<BuildButtonTodo> {
+  int myWidth = 20;
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: GestureDetector(
+        onHorizontalDragUpdate: (event) {
+          print(event.primaryDelta);
+          if (event.primaryDelta! < -10) {
+            setState(() {
+              myWidth = 60;
+            });
+          } else if (event.primaryDelta! > 10) {
+            setState(() {
+              myWidth = 20;
+            });
+          }
+        },
+        child: TextButton(
+          style:
+              ButtonStyle(padding: MaterialStateProperty.all(EdgeInsets.zero)),
+          onPressed: () async {
+            context
+                .read<DeadlineProvider>()
+                .changeDeadline(widget.todos[widget.index - 1]['deadline']);
+            context
+                .read<ImportanceProvider>()
+                .changeImportance(widget.todos[widget.index - 1]['importance']);
+            showAlertDialog(
+              context,
+              widget.todos[widget.index - 1]['id'],
+              widget.todos[widget.index - 1]['toUser'],
+              widget.todos[widget.index - 1]['complete'],
+              widget.todos[widget.index - 1]['name'],
+              widget.todos[widget.index - 1]['description'],
+              widget.todos[widget.index - 1]['importance'],
+              widget.todos[widget.index - 1]['fromUser'],
+              widget.todos[widget.index - 1]['duration'],
+              widget.todos[widget.index - 1]['deadline'],
+            );
+          },
+          child: Container(
+            child: Row(
+              //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                TextButton(
+                    onPressed: () {
+                      updateTodo(
+                          widget.todos[widget.index - 1]['id'],
+                          Utils.userId!,
+                          !widget.todos[widget.index - 1]['complete'],
+                          widget.todos[widget.index - 1]['name'],
+                          widget.todos[widget.index - 1]['description'],
+                          widget.todos[widget.index - 1]['importance'],
+                          widget.todos[widget.index - 1]['fromUser'],
+                          widget.todos[widget.index - 1]['duration'],
+                          widget.todos[widget.index - 1]['deadline']);
+                    },
+                    style: ButtonStyle(
+                        padding: MaterialStateProperty.all(EdgeInsets.zero)),
+                    child: Container(
+                      height: 33,
+                      width: 33,
+                      decoration: BoxDecoration(
+                          color: widget.todos[widget.index - 1]['complete'] ==
+                                  true
+                              ? _checkBorderColor(widget.todos[widget.index - 1]
+                                      ['importance'])
+                                  .withOpacity(0.7)
+                              : Colors.transparent,
+                          borderRadius: BorderRadius.circular(16.5),
+                          border: Border.all(
+                              color: _checkBorderColor(
+                                  widget.todos[widget.index - 1]['importance']),
+                              width: 4)),
+                    )),
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(
+                        height: 5,
+                      ),
+                      //TODO: TextOverflow
+                      Text(
+                        widget.todos[widget.index - 1]['name'],
+                        softWrap: false,
+                        style: const TextStyle(
+                            overflow: TextOverflow.fade,
+                            color: Color(0xFF0D0D0D),
+                            fontSize: 22,
+                            fontWeight: FontWeight.normal),
+                      ),
+                      Text(
+                        widget.todos[widget.index - 1]['description'],
+                        style: const TextStyle(
+                            overflow: TextOverflow.fade,
+                            color: Color(0xFF0D0D0D),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w300),
+                      )
+                    ],
+                  ),
+                ),
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 100),
+                  //transformAlignment: Alignment.centerRight,
+                  curve: Curves.linearToEaseOut,
+                  width: myWidth.toDouble(),
+                  height: 60,
+                  child: IconButton(
+                    onPressed: () {
+                      deleteTodo(
+                        widget.todos[widget.index - 1]['id'].toString(),
+                        Utils.userId!,
+                      );
+                      setState(() {
+                        myWidth = 20;
+                      });
+                    },
+                    icon: const Icon(CupertinoIcons.trash),
+                    color: myWidth == 60 ? Colors.black : Colors.transparent,
+                  ),
+                  //: null,
+                  decoration: BoxDecoration(
+                      borderRadius: const BorderRadius.only(
+                          topRight: Radius.circular(18),
+                          bottomRight: Radius.circular(18)),
+                      color: myWidth == 60
+                          ? const Color.fromARGB(210, 253, 44, 29)
+                          : Colors.transparent),
+                )
+              ],
+            ),
+            height: 60,
+            width: MediaQuery.of(context).size.width - 40,
+            decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  widget.todos[widget.index - 1]["complete"] == false
+                      ? BoxShadow(color: CustomTheme().indigo, blurRadius: 10)
+                      : const BoxShadow(color: Colors.transparent)
+                ],
+                borderRadius: BorderRadius.circular(20),
+                border: widget.todos[widget.index - 1]["complete"] == false
+                    ? Border.all(color: CustomTheme().indigo, width: 2)
+                    : Border.all(color: const Color(0xFFBDBDBD))),
+          ),
+        ),
+      ),
+    );
   }
 
   Color _checkBorderColor(_importance) {

@@ -28,7 +28,10 @@ void main() async {
   await Firebase.initializeApp();
   final prefs = await SharedPreferences.getInstance();
   final String? userId = prefs.getString('userId');
-  if (userId != null) Utils.userId = userId;
+  if (userId != null) {
+    Utils.userId = userId;
+    updateTodoForDay();
+  }
   runApp(MultiProvider(providers: [
     ChangeNotifierProvider<PageProvider>(create: (_) => PageProvider()),
     ChangeNotifierProvider<DeadlineProvider>(create: (_) => DeadlineProvider()),

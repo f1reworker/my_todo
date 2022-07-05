@@ -27,3 +27,8 @@ Future updateTodo(
     }
   });
 }
+
+Future deleteTodo(String id, String toUser) async {
+  final dbRef = FirebaseFirestore.instance.collection('todos').doc(toUser);
+  dbRef.update({id: FieldValue.delete()});
+}
