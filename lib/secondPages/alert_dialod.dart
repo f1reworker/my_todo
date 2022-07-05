@@ -4,10 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:my_todo_refresh/backend/new_todo_provider.dart';
 import 'package:my_todo_refresh/backend/update_todo.dart';
+import 'package:my_todo_refresh/backend/utils.dart';
 import 'package:my_todo_refresh/custom_theme.dart';
 import 'package:my_todo_refresh/my_todo_icons.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class BuildAlert extends StatelessWidget {
   final TextEditingController _nameController;
@@ -62,18 +64,60 @@ class BuildAlert extends StatelessWidget {
                 IconButton(
                     padding: const EdgeInsets.only(right: 20),
                     onPressed: () {
-                      updateTodo(
-                          id,
-                          toUser,
-                          complete,
-                          _nameController.text,
-                          _descriptionController.text,
-                          ImportanceProvider().getImportance,
-                          _descriptionController.text,
-                          (int.tryParse(_hoursController.text) ?? 0) * 60 +
-                              (int.tryParse(_minuteController.text) ?? 0),
-                          DeadlineProvider().getDeadline);
-                      Navigator.pop(context);
+                      if (_nameController.text.isEmpty ||
+                          _nameController.text == "") {
+                        Fluttertoast.showToast(
+                            msg: "Введите название",
+                            toastLength: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.BOTTOM,
+                            timeInSecForIosWeb: 1,
+                            backgroundColor: Colors.red,
+                            textColor: Colors.white,
+                            fontSize: 16.0);
+                      } else if ((_hoursController.text.isEmpty ||
+                              _hoursController.text == "") &&
+                          (_minuteController.text.isEmpty ||
+                              _minuteController.text == "")) {
+                        Fluttertoast.showToast(
+                            msg: "Введите время выполнения",
+                            toastLength: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.BOTTOM,
+                            timeInSecForIosWeb: 1,
+                            backgroundColor: Colors.red,
+                            textColor: Colors.white,
+                            fontSize: 16.0);
+                      } else {
+                        int _time = 0;
+                        if (_minuteController.text.isNotEmpty) {
+                          _time += int.parse(_minuteController.text);
+                        }
+                        if (_hoursController.text.isNotEmpty) {
+                          _time += int.parse(_hoursController.text) * 60;
+                        }
+                        if (_time > Utils.workday) {
+                          Fluttertoast.showToast(
+                              msg:
+                                  "Время выполения не должно быть больше Вашего рабочего дня, попробуйте разбить задачу.",
+                              toastLength: Toast.LENGTH_SHORT,
+                              gravity: ToastGravity.BOTTOM,
+                              timeInSecForIosWeb: 1,
+                              backgroundColor: Colors.red,
+                              textColor: Colors.white,
+                              fontSize: 16.0);
+                        } else {
+                          updateTodo(
+                              id,
+                              toUser,
+                              complete,
+                              _nameController.text,
+                              _descriptionController.text,
+                              ImportanceProvider().getImportance,
+                              _descriptionController.text,
+                              _time,
+                              (DeadlineProvider().getDeadline / 1000).ceil());
+                          Navigator.pop(context);
+                        }
+                      }
                     },
                     icon: Icon(
                       MyTodo.add_rounded,
@@ -362,9 +406,9 @@ class BuildDeadline extends StatelessWidget {
                 helpText: ('Выберите дату'),
                 context: context,
                 initialDate: DateTime.fromMillisecondsSinceEpoch(
-                    DeadlineProvider().getDeadline * 1000),
+                    DeadlineProvider().getDeadline),
                 firstDate: DateTime.fromMillisecondsSinceEpoch(min(
-                    DeadlineProvider().getDeadline * 1000,
+                    DeadlineProvider().getDeadline,
                     DateTime.now().millisecondsSinceEpoch)),
                 lastDate: DateTime(2101));
 
@@ -394,9 +438,9 @@ class BuildDeadline extends StatelessWidget {
                       minute: TimeOfDay.now().minute));
               if (timePicked != null) {
                 context.read<DeadlineProvider>().changeDeadline(
-                    (datePicked.millisecondsSinceEpoch / 1000).ceil() +
-                        timePicked.hour * 3600 +
-                        timePicked.minute * 60 +
+                    datePicked.millisecondsSinceEpoch +
+                        timePicked.hour * 3600000 +
+                        timePicked.minute * 60000 +
                         timePicked.period.index * 12 * 3600);
               }
             }
@@ -408,7 +452,7 @@ class BuildDeadline extends StatelessWidget {
               Text(
                 DateFormat('dd.MM.yyyy kk:mm')
                     .format(DateTime.fromMillisecondsSinceEpoch(
-                  context.watch<DeadlineProvider>().getDeadline * 1000,
+                  context.watch<DeadlineProvider>().getDeadline,
                 )),
                 style: const TextStyle(color: Colors.black, fontSize: 16),
               ),

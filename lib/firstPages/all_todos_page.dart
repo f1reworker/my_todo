@@ -27,7 +27,9 @@ class AllTodosPage extends StatelessWidget {
                 snapshot.data!.data() as Map<String, dynamic>;
             final List<Map<String, dynamic>> _todos = [];
             for (var element in _data.keys) {
-              _todos.add(_data[element]);
+              if (element != 'todosForDay' && _data[element]['show']) {
+                _todos.add(_data[element]);
+              }
             }
             _todos.sort((a, b) {
               return a['complete'] ? 1 : -1;
@@ -66,7 +68,7 @@ class AllTodosPage extends StatelessWidget {
                       context,
                       PageRouteBuilder(
                         pageBuilder: (context, animation1, animation2) =>
-                            NewTodoPage(_todos.length),
+                            NewTodoPage(_data.length),
                         transitionDuration: Duration.zero,
                         reverseTransitionDuration: Duration.zero,
                       ),
@@ -116,7 +118,6 @@ class _BuildButtonTodoState extends State<BuildButtonTodo> {
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: GestureDetector(
         onHorizontalDragUpdate: (event) {
-          print(event.primaryDelta);
           if (event.primaryDelta! < -10) {
             setState(() {
               myWidth = 60;
@@ -131,9 +132,8 @@ class _BuildButtonTodoState extends State<BuildButtonTodo> {
           style:
               ButtonStyle(padding: MaterialStateProperty.all(EdgeInsets.zero)),
           onPressed: () async {
-            context
-                .read<DeadlineProvider>()
-                .changeDeadline(widget.todos[widget.index - 1]['deadline']);
+            context.read<DeadlineProvider>().changeDeadline(
+                widget.todos[widget.index - 1]['deadline'] * 1000);
             context
                 .read<ImportanceProvider>()
                 .changeImportance(widget.todos[widget.index - 1]['importance']);
@@ -194,7 +194,6 @@ class _BuildButtonTodoState extends State<BuildButtonTodo> {
                       const SizedBox(
                         height: 5,
                       ),
-                      //TODO: TextOverflow
                       Text(
                         widget.todos[widget.index - 1]['name'],
                         softWrap: false,
@@ -206,6 +205,7 @@ class _BuildButtonTodoState extends State<BuildButtonTodo> {
                       ),
                       Text(
                         widget.todos[widget.index - 1]['description'],
+                        softWrap: false,
                         style: const TextStyle(
                             overflow: TextOverflow.fade,
                             color: Color(0xFF0D0D0D),

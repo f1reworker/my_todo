@@ -15,6 +15,7 @@ Future updateTodo(
   final dbRef = FirebaseFirestore.instance.collection('todos').doc(toUser);
   dbRef.update({
     id.toString(): {
+      'show': true,
       'id': id,
       'name': name,
       'importance': importance,
@@ -30,5 +31,5 @@ Future updateTodo(
 
 Future deleteTodo(String id, String toUser) async {
   final dbRef = FirebaseFirestore.instance.collection('todos').doc(toUser);
-  dbRef.update({id: FieldValue.delete()});
+  dbRef.update({'$id.show': false});
 }

@@ -313,35 +313,47 @@ class NewTodoPage extends StatelessWidget {
                         if (_hoursController.text.isNotEmpty) {
                           _time += int.parse(_hoursController.text) * 60;
                         }
-                        final result = await updateTodo(
-                            id,
-                            Utils.userId!,
-                            false,
-                            _nameController.text,
-                            _descriptionController.text,
-                            ImportanceProvider().getImportance,
-                            Utils.userId!,
-                            _time,
-                            (DeadlineProvider().getDeadline / 1000).ceil());
-                        result == -1
-                            ? Fluttertoast.showToast(
-                                msg: "Что-то пошло не так, попробуйте позже",
-                                toastLength: Toast.LENGTH_SHORT,
-                                gravity: ToastGravity.BOTTOM,
-                                timeInSecForIosWeb: 1,
-                                backgroundColor: Colors.red,
-                                textColor: Colors.white,
-                                fontSize: 16.0)
-                            : Navigator.pop(
-                                context,
-                                PageRouteBuilder(
-                                  pageBuilder:
-                                      (context, animation1, animation2) =>
-                                          const MyApp(),
-                                  transitionDuration: Duration.zero,
-                                  reverseTransitionDuration: Duration.zero,
-                                ),
-                              );
+                        if (_time > Utils.workday) {
+                          Fluttertoast.showToast(
+                              msg:
+                                  "Время выполения не должно быть больше Вашего рабочего дня, попробуйте разбить задачу.",
+                              toastLength: Toast.LENGTH_SHORT,
+                              gravity: ToastGravity.BOTTOM,
+                              timeInSecForIosWeb: 1,
+                              backgroundColor: Colors.red,
+                              textColor: Colors.white,
+                              fontSize: 16.0);
+                        } else {
+                          final result = await updateTodo(
+                              id,
+                              Utils.userId!,
+                              false,
+                              _nameController.text,
+                              _descriptionController.text,
+                              ImportanceProvider().getImportance,
+                              Utils.userId!,
+                              _time,
+                              (DeadlineProvider().getDeadline / 1000).ceil());
+                          result == -1
+                              ? Fluttertoast.showToast(
+                                  msg: "Что-то пошло не так, попробуйте позже",
+                                  toastLength: Toast.LENGTH_SHORT,
+                                  gravity: ToastGravity.BOTTOM,
+                                  timeInSecForIosWeb: 1,
+                                  backgroundColor: Colors.red,
+                                  textColor: Colors.white,
+                                  fontSize: 16.0)
+                              : Navigator.pop(
+                                  context,
+                                  PageRouteBuilder(
+                                    pageBuilder:
+                                        (context, animation1, animation2) =>
+                                            const MyApp(),
+                                    transitionDuration: Duration.zero,
+                                    reverseTransitionDuration: Duration.zero,
+                                  ),
+                                );
+                        }
                       }
                     },
                     icon: const Icon(
