@@ -28,7 +28,7 @@ void updateTodoForDay() async {
       _todosForDay.add(element['id'].toString());
       _time += element['duration'] as int;
     } else if (!element['complete'] &&
-        Utils.workday - _time - element['duration'] > 0) {
+        Utils.workday! - _time - element['duration'] > 0) {
       _todosForDay.add(element['id'].toString());
       _time += element['duration'] as int;
     }
@@ -37,6 +37,48 @@ void updateTodoForDay() async {
       .collection('todos')
       .doc(Utils.userId)
       .update({'todosForDay': _todosForDay});
+}
+
+void updateTodoForDayByHomePage(String id) async {
+  final Map<String, dynamic>? _allTodosMap = await FirebaseFirestore.instance
+      .collection('todos')
+      .doc(Utils.userId)
+      .get()
+      .then((value) => value.data());
+  if (_allTodosMap == null) {
+    await FirebaseFirestore.instance
+        .collection('todos')
+        .doc(Utils.userId)
+        .update({
+      'todosForDay': [id]
+    });
+  } else {
+    final List _todoForDay = _allTodosMap['todosForDay'] ?? [];
+    _todoForDay.add(id);
+    _todoForDay.toSet();
+    _todoForDay.toList();
+    await FirebaseFirestore.instance
+        .collection('todos')
+        .doc(Utils.userId)
+        .update({'todosForDay': _todoForDay});
+  }
+}
+
+void deleteTodoForDay(String id) async {
+  final Map<String, dynamic>? _allTodosMap = await FirebaseFirestore.instance
+      .collection('todos')
+      .doc(Utils.userId)
+      .get()
+      .then((value) => value.data());
+  if (_allTodosMap == null) return;
+  final List _todoForDay = _allTodosMap['todosForDay'];
+  _todoForDay.toSet();
+  _todoForDay.toList();
+  _todoForDay.remove(id);
+  await FirebaseFirestore.instance
+      .collection('todos')
+      .doc(Utils.userId)
+      .update({'todosForDay': _todoForDay});
 }
 
 Future showNotificationWithDefaultSound(flip) async {
@@ -50,7 +92,10 @@ Future showNotificationWithDefaultSound(flip) async {
       android: androidPlatformChannelSpecifics,
       iOS: iOSPlatformChannelSpecifics);
   await flip.show(
-      0, 'GeeksforGeeks', DateTime.now().toString(), platformChannelSpecifics,
+      0,
+      'Список задач на день готов!',
+      'Откройте приложение, чтобы узнать задачи на сегодня',
+      platformChannelSpecifics,
       payload: 'Default_Sound');
 }
 

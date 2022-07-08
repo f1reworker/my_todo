@@ -11,6 +11,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
 
+//TODO: Поменять первый день недели в pickdate()
 void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) {
     initSettings();
@@ -18,16 +19,34 @@ void callbackDispatcher() {
   });
 }
 
+Duration initialDelay() {
+  Duration initialDelay;
+  DateTime now = DateTime.now();
+  if (now.hour < 8) {
+    initialDelay =
+        now.difference(DateTime(now.year, now.month, now.day, 8, 0, 0));
+  } else {
+    initialDelay =
+        DateTime(now.year, now.month, now.day + 1, 8, 0, 0).difference(now);
+  }
+  return initialDelay;
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   Workmanager().initialize(callbackDispatcher);
   Workmanager().cancelAll();
   Workmanager().registerPeriodicTask('uniqueName', 'taskName',
-      frequency: const Duration(minutes: 15),
-      initialDelay: const Duration(seconds: 10));
+      frequency: const Duration(hours: 24), initialDelay: initialDelay());
   await Firebase.initializeApp();
   final prefs = await SharedPreferences.getInstance();
+  final int? workday = prefs.getInt('workday');
   final String? userId = prefs.getString('userId');
+  if (workday != null) {
+    Utils.workday = workday;
+  } else {
+    Utils.workday = 420;
+  }
   if (userId != null) {
     Utils.userId = userId;
     updateTodoForDay();

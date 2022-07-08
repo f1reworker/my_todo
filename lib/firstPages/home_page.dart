@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:my_todo_refresh/backend/todo_for_day.dart';
 import 'package:my_todo_refresh/backend/update_todo.dart';
@@ -6,7 +5,9 @@ import 'package:my_todo_refresh/backend/utils.dart';
 import 'package:my_todo_refresh/custom_theme.dart';
 import 'package:my_todo_refresh/my_todo_icons.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:my_todo_refresh/secondPages/add_todo_for_day.dart';
 import 'package:my_todo_refresh/secondPages/alert_dialod.dart';
+import 'package:my_todo_refresh/secondPages/new_todo_page.dart';
 import 'package:provider/provider.dart';
 import 'package:my_todo_refresh/backend/new_todo_provider.dart';
 
@@ -15,7 +16,6 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Future<void> _onRefresh() async => updateTodoForDay();
     return StreamBuilder(
         stream: FirebaseFirestore.instance
             .collection('todos')
@@ -40,61 +40,25 @@ class HomePage extends StatelessWidget {
             });
 
             return Stack(fit: StackFit.loose, children: [
-              RefreshIndicator(
-                color: Colors.black,
-                onRefresh: _onRefresh,
-                child: ListView.separated(
-                    itemBuilder: (context, index) => index == 0
-                        ? const SizedBox(
-                            height: 5,
-                          )
-                        : BuildButtonTodo(
-                            todos: _todos,
-                            index: index,
-                          ),
-                    separatorBuilder: (context, index) => const Divider(
-                          height: 24,
-                          color: Colors.transparent,
-                        ),
-                    itemCount: _todos.length + 1),
-              ),
+              ListView.separated(
+                  itemBuilder: (context, index) =>
+                      index == 0 || index == _todos.length + 1
+                          ? const SizedBox(
+                              height: 5,
+                            )
+                          : BuildButtonTodo(
+                              todos: _todos,
+                              index: index,
+                            ),
+                  separatorBuilder: (context, index) => const Divider(
+                        height: 24,
+                        color: Colors.transparent,
+                      ),
+                  itemCount: _todos.length + 2),
               Align(
                 widthFactor: MediaQuery.of(context).size.width,
                 alignment: Alignment.bottomRight,
-                child: TextButton(
-                  style: ButtonStyle(
-                      padding: MaterialStateProperty.all(
-                          const EdgeInsets.only(right: 20, bottom: 18))),
-                  onPressed: () {
-                    context.read<DeadlineProvider>().changeDeadline(
-                        DateTime.now()
-                            .add(const Duration(hours: 1))
-                            .toUtc()
-                            .millisecondsSinceEpoch);
-                    context.read<ImportanceProvider>().changeImportance(2);
-                    // Navigator.push(
-                    //   context,
-                    //   PageRouteBuilder(
-                    //     pageBuilder: (context, animation1, animation2) =>
-                    //         NewTodoPage(_todos.length),
-                    //     transitionDuration: Duration.zero,
-                    //     reverseTransitionDuration: Duration.zero,
-                    //   ),
-                    // );
-                  },
-                  child: Container(
-                      child: const Icon(
-                        MyTodo.add,
-                        size: 29,
-                        color: Colors.white,
-                      ),
-                      height: 60,
-                      width: 60,
-                      decoration: BoxDecoration(
-                          color: CustomTheme.lightTheme.colorScheme.secondary,
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(30)))),
-                ),
+                child: ButtonAddTodo(newId: _data.length),
               )
             ]);
           } else {
@@ -105,6 +69,145 @@ class HomePage extends StatelessWidget {
             );
           }
         });
+  }
+}
+
+class ButtonAddTodo extends StatefulWidget {
+  final int newId;
+  const ButtonAddTodo({required this.newId, Key? key}) : super(key: key);
+
+  @override
+  State<ButtonAddTodo> createState() => _ButtonAddTodoState();
+}
+
+class _ButtonAddTodoState extends State<ButtonAddTodo> {
+  bool _openButton = false;
+  Icon _myIcon = const Icon(
+    MyTodo.add,
+    size: 29,
+    color: Colors.white,
+  );
+  void changeButton() {
+    setState(() {
+      if (_openButton) {
+        _openButton = !_openButton;
+
+        _myIcon = const Icon(
+          MyTodo.add,
+          size: 29,
+          color: Colors.white,
+        );
+      } else {
+        _openButton = !_openButton;
+        _myIcon = const Icon(
+          MyTodo.close,
+          size: 29,
+          color: Colors.white,
+        );
+      }
+    });
+  }
+
+  @override
+  void initState() {
+    _openButton = false;
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedContainer(
+        duration: const Duration(milliseconds: 100),
+        child: !_openButton
+            ? Padding(
+                padding: const EdgeInsets.only(bottom: 18, right: 24),
+                child: Container(
+                    height: 60,
+                    width: 60,
+                    decoration: BoxDecoration(
+                        color: CustomTheme.lightTheme.colorScheme.secondary,
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(30))),
+                    child: Center(
+                        child: TextButton(
+                      onPressed: changeButton,
+                      child: _myIcon,
+                    ))),
+              )
+            : Container(
+                margin: const EdgeInsets.only(bottom: 13, right: 19),
+                decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(35)),
+                    boxShadow: [
+                      BoxShadow(blurRadius: 4, color: Color(0xFFACABAB))
+                    ],
+                    color: Colors.white),
+                height: 187,
+                width: 70,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    IconButton(
+                        padding: const EdgeInsets.only(top: 25, bottom: 24),
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              PageRouteBuilder(
+                                pageBuilder:
+                                    (context, animation1, animation2) =>
+                                        const AddTodoForDay(),
+                                transitionDuration: Duration.zero,
+                                reverseTransitionDuration: Duration.zero,
+                              ));
+                        },
+                        icon: Icon(
+                          MyTodo.all_todos,
+                          size: 28,
+                          color: CustomTheme().blackIcon,
+                        )),
+                    IconButton(
+                        padding: const EdgeInsets.only(bottom: 25),
+                        onPressed: () {
+                          updateTodoForDayByHomePage(widget.newId.toString());
+                          context.read<DeadlineProvider>().changeDeadline(
+                              DateTime.now()
+                                  .add(const Duration(hours: 1))
+                                  .toUtc()
+                                  .millisecondsSinceEpoch);
+                          context
+                              .read<ImportanceProvider>()
+                              .changeImportance(2);
+                          Navigator.push(
+                            context,
+                            PageRouteBuilder(
+                              pageBuilder: (context, animation1, animation2) =>
+                                  NewTodoPage(widget.newId),
+                              transitionDuration: Duration.zero,
+                              reverseTransitionDuration: Duration.zero,
+                            ),
+                          );
+                        },
+                        icon: Icon(
+                          MyTodo.add,
+                          size: 28,
+                          color: CustomTheme().blackIcon,
+                        )),
+                    Container(
+                        height: 60,
+                        width: 60,
+                        decoration: BoxDecoration(
+                            color: CustomTheme.lightTheme.colorScheme.secondary,
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(30))),
+                        child: Center(
+                            child: TextButton(
+                          onPressed: changeButton,
+                          child: _myIcon,
+                        ))),
+                  ],
+                ),
+              ));
   }
 }
 
@@ -119,20 +222,20 @@ class BuildButtonTodo extends StatefulWidget {
 }
 
 class _BuildButtonTodoState extends State<BuildButtonTodo> {
-  int myWidth = 20;
+  int myWidth = 0;
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: GestureDetector(
         onHorizontalDragUpdate: (event) {
-          if (event.primaryDelta! < -10) {
+          if (event.primaryDelta! > 10) {
             setState(() {
-              myWidth = 60;
+              myWidth = 50;
             });
-          } else if (event.primaryDelta! > 10) {
+          } else if (event.primaryDelta! < -10) {
             setState(() {
-              myWidth = 20;
+              myWidth = 0;
             });
           }
         },
@@ -163,6 +266,35 @@ class _BuildButtonTodoState extends State<BuildButtonTodo> {
               //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 100),
+                  //transformAlignment: Alignment.centerRight,
+                  curve: Curves.linear,
+                  width: myWidth.toDouble(),
+                  height: 60,
+                  child: IconButton(
+                    onPressed: () {
+                      deleteTodoForDay(
+                        widget.todos[widget.index - 1]['id'].toString(),
+                      );
+                      setState(() {
+                        myWidth = 0;
+                      });
+                    },
+                    icon: const Icon(
+                      Icons.visibility_off_outlined,
+                      size: 29,
+                    ),
+                    color: myWidth == 50 ? Colors.black : Colors.transparent,
+                  ),
+                  decoration: BoxDecoration(
+                      borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(18),
+                          bottomLeft: Radius.circular(18)),
+                      color: myWidth == 50
+                          ? const Color.fromARGB(210, 253, 44, 29)
+                          : Colors.transparent),
+                ),
                 TextButton(
                     onPressed: () {
                       updateTodo(
@@ -223,32 +355,6 @@ class _BuildButtonTodoState extends State<BuildButtonTodo> {
                     ],
                   ),
                 ),
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 100),
-                  curve: Curves.linearToEaseOut,
-                  width: myWidth.toDouble(),
-                  height: 60,
-                  child: IconButton(
-                    onPressed: () {
-                      deleteTodo(
-                        widget.todos[widget.index - 1]['id'].toString(),
-                        Utils.userId!,
-                      );
-                      setState(() {
-                        myWidth = 20;
-                      });
-                    },
-                    icon: const Icon(CupertinoIcons.trash),
-                    color: myWidth == 60 ? Colors.black : Colors.transparent,
-                  ),
-                  decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.only(
-                          topRight: Radius.circular(18),
-                          bottomRight: Radius.circular(18)),
-                      color: myWidth == 60
-                          ? const Color.fromARGB(210, 253, 44, 29)
-                          : Colors.transparent),
-                )
               ],
             ),
             height: 60,

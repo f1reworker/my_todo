@@ -313,7 +313,7 @@ class NewTodoPage extends StatelessWidget {
                         if (_hoursController.text.isNotEmpty) {
                           _time += int.parse(_hoursController.text) * 60;
                         }
-                        if (_time > Utils.workday) {
+                        if (_time > Utils.workday!) {
                           Fluttertoast.showToast(
                               msg:
                                   "Время выполения не должно быть больше Вашего рабочего дня, попробуйте разбить задачу.",

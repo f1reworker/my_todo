@@ -37,14 +37,15 @@ class AllTodosPage extends StatelessWidget {
 
             return Stack(fit: StackFit.loose, children: [
               ListView.separated(
-                  itemBuilder: (context, index) => index == 0
-                      ? const SizedBox(
-                          height: 5,
-                        )
-                      : BuildButtonTodo(
-                          todos: _todos,
-                          index: index,
-                        ),
+                  itemBuilder: (context, index) =>
+                      index == 0 || index == _todos.length + 1
+                          ? const SizedBox(
+                              height: 5,
+                            )
+                          : BuildButtonTodo(
+                              todos: _todos,
+                              index: index,
+                            ),
                   separatorBuilder: (context, index) => const Divider(
                         height: 24,
                         color: Colors.transparent,
@@ -56,7 +57,7 @@ class AllTodosPage extends StatelessWidget {
                 child: TextButton(
                   style: ButtonStyle(
                       padding: MaterialStateProperty.all(
-                          const EdgeInsets.only(right: 20, bottom: 18))),
+                          const EdgeInsets.only(right: 24, bottom: 18))),
                   onPressed: () {
                     context.read<DeadlineProvider>().changeDeadline(
                         DateTime.now()
@@ -111,20 +112,20 @@ class BuildButtonTodo extends StatefulWidget {
 }
 
 class _BuildButtonTodoState extends State<BuildButtonTodo> {
-  int myWidth = 20;
+  int myWidth = 0;
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: GestureDetector(
         onHorizontalDragUpdate: (event) {
-          if (event.primaryDelta! < -10) {
+          if (event.primaryDelta! > 10) {
             setState(() {
               myWidth = 60;
             });
-          } else if (event.primaryDelta! > 10) {
+          } else if (event.primaryDelta! < -10) {
             setState(() {
-              myWidth = 20;
+              myWidth = 0;
             });
           }
         },
@@ -155,6 +156,34 @@ class _BuildButtonTodoState extends State<BuildButtonTodo> {
               //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 100),
+                  //transformAlignment: Alignment.centerRight,
+                  curve: Curves.linear,
+                  width: myWidth.toDouble(),
+                  height: 60,
+                  child: IconButton(
+                    onPressed: () {
+                      deleteTodo(
+                        widget.todos[widget.index - 1]['id'].toString(),
+                        Utils.userId!,
+                      );
+                      setState(() {
+                        myWidth = 0;
+                      });
+                    },
+                    icon: const Icon(CupertinoIcons.trash),
+                    color: myWidth == 60 ? Colors.black : Colors.transparent,
+                  ),
+                  //: null,
+                  decoration: BoxDecoration(
+                      borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(18),
+                          bottomLeft: Radius.circular(18)),
+                      color: myWidth == 60
+                          ? const Color.fromARGB(210, 253, 44, 29)
+                          : Colors.transparent),
+                ),
                 TextButton(
                     onPressed: () {
                       updateTodo(
@@ -215,34 +244,6 @@ class _BuildButtonTodoState extends State<BuildButtonTodo> {
                     ],
                   ),
                 ),
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 100),
-                  //transformAlignment: Alignment.centerRight,
-                  curve: Curves.linearToEaseOut,
-                  width: myWidth.toDouble(),
-                  height: 60,
-                  child: IconButton(
-                    onPressed: () {
-                      deleteTodo(
-                        widget.todos[widget.index - 1]['id'].toString(),
-                        Utils.userId!,
-                      );
-                      setState(() {
-                        myWidth = 20;
-                      });
-                    },
-                    icon: const Icon(CupertinoIcons.trash),
-                    color: myWidth == 60 ? Colors.black : Colors.transparent,
-                  ),
-                  //: null,
-                  decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.only(
-                          topRight: Radius.circular(18),
-                          bottomRight: Radius.circular(18)),
-                      color: myWidth == 60
-                          ? const Color.fromARGB(210, 253, 44, 29)
-                          : Colors.transparent),
-                )
               ],
             ),
             height: 60,
